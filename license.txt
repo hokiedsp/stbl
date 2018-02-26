@@ -1,3 +1,4 @@
+Copyright (c) 2018, Takeshi Ikuma
 Copyright (c) 2012, Mark  Veillette
 All rights reserved.
 
