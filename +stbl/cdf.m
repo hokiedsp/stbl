@@ -35,36 +35,36 @@ function F = cdf(x,alpha,beta,gam,delta,varargin)
 %      infinite variance"  CRC Press
 
 if nargin < 5
-    error('stblcdf:TooFewInputs','Requires at least five input arguments.'); 
+    error('stbl:cdf:TooFewInputs','Requires at least five input arguments.'); 
 end
 
 % Check parameters
 if alpha <= 0 || alpha > 2 || ~isscalar(alpha)
-    error('stblcdf:BadInputs',' "alpha" must be a scalar which lies in the interval (0,2]');
+    error('stbl:cdf:BadInputs',' "alpha" must be a scalar which lies in the interval (0,2]');
 end
 if abs(beta) > 1 || ~isscalar(beta)
-    error('stblcdf:BadInputs',' "beta" must be a scalar which lies in the interval [-1,1]');
+    error('stbl:cdf:BadInputs',' "beta" must be a scalar which lies in the interval [-1,1]');
 end
 if gam < 0 || ~isscalar(gam)
-    error('stblcdf:BadInputs',' "gam" must be a non-negative scalar');
+    error('stbl:cdf:BadInputs',' "gam" must be a non-negative scalar');
 end
 if ~isscalar(delta)
-    error('stblcdf:BadInputs',' "delta" must be a scalar');
+    error('stbl:cdf:BadInputs',' "delta" must be a scalar');
 end
 
 if nargin > 6
-    error('stblcdf:TooManyInputs','Accepts at most six input arguments.');
+    error('stbl:cdf:TooManyInputs','Accepts at most six input arguments.');
 elseif isempty(varargin)
     tol = 1e-8;
 elseif isscalar(varargin{1})
     tol = varargin{1};
 else
-    error('stblcdf:BadInput','"TOL" must be a scalar.')
+    error('stbl:cdf:BadInput','"TOL" must be a scalar.')
 end
 
 % Warn if alpha is very close to 1 or 0
 if (1e-5 < abs(1 - alpha) && abs(1 - alpha) < .02) || alpha < .02
-    warning('stblcdf:ScaryAlpha',...
+    warning('stbl:cdf:ScaryAlpha',...
         'Difficult to approximate cdf for alpha close to 0 or 1')
 end
 
@@ -114,7 +114,7 @@ elseif abs(alpha - 1) > 1e-5         % Gen. Case, alpha ~= 1
         % shave off end points of integral to avoid numerical instability
         % when calculating V
         F( x > zeta ) = c1 + sign(1-alpha)/pi * ...
-           integral(@(theta) exp(-xshift * V(theta)),-theta0+1e-10,pi/2-1e-10,tol);
+           integral(@(theta) exp(-xshift * V(theta)),-theta0+1e-10,pi/2-1e-10,'AbsTol',tol,'ArrayValued',true);
     end
     
     if any(abs(x(:) - zeta) < 1e-8)
@@ -124,7 +124,7 @@ elseif abs(alpha - 1) > 1e-5         % Gen. Case, alpha ~= 1
     if any( x(:) < zeta)
         % Recall with -xold, -beta, -delta
         F(x < zeta) =...
-            1 - stblcdf(-xold(x < zeta),alpha,-beta,gam,-delta);
+            1 - stbl.cdf(-xold(x < zeta),alpha,-beta,gam,-delta);
     end
 elseif beta > 0                     % Gen. Case, alpha = 1, beta >0
     x = (x - (2/pi) * beta * gam * log(gam) - delta)/gam; % Standardize
@@ -137,11 +137,11 @@ elseif beta > 0                     % Gen. Case, alpha = 1, beta >0
     
     xterm = (-pi*x/(2*beta));
     F = (1/pi)*integral(@(theta) exp(-exp(xterm + logV(theta))),...
-                                            -pi/2+1e-12,pi/2-1e-12,tol);
+                                            -pi/2+1e-12,pi/2-1e-12,'AbsTol',tol,'ArrayValued',true);
                                        
 
 else                           % alpha = 1, beta < 0 
-    F = 1 - stblcdf(-x,1,-beta,gam,-delta,tol);              
+    F = 1 - stbl.cdf(-x,1,-beta,gam,-delta,tol);              
 end
 
 F = max(real(F),0); % in case of small imaginary or negative resutls from QUADV

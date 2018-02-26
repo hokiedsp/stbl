@@ -319,15 +319,15 @@ function [gam, delta] = intGamDel(X,alpha,beta)
 Xpcts = prctile(X,[75 50 25]);
 
 % If alpha is very close to 1, truncate to avoid numerical instability.
-warning('off','stblcdf:ScaryAlpha');
-warning('off','stblpdf:ScaryAlpha');
+warning('off','stbl:cdf:ScaryAlpha');
+warning('off','stbl:pdf:ScaryAlpha');
 if abs(alpha - 1) < .02
    alpha = 1;
 end
 
 % With the 'quick' option, these are equivalent to McCulloch's tables
-Xquart = stblinv([.75 .25],alpha,beta,1,0,'quick');
-Xmed = stblinv(.5,alpha,beta,1,-beta*tan(pi*alpha/2),'quick');
+Xquart = stbl.inv([.75 .25],alpha,beta,1,0,'quick');
+Xmed = stbl.inv(.5,alpha,beta,1,-beta*tan(pi*alpha/2),'quick');
 
 % Obtain gamma as ratio of interquartile ranges
 gam = (Xpcts(1) - Xpcts(3))/(Xquart(1) - Xquart(2));
